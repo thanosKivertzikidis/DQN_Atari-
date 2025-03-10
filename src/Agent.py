@@ -107,7 +107,7 @@ class Agent():
                     else:
                         result_indices = np.arange(index - self.frameStackLimit + 1, index + 1)
                 else:
-                    if index-limit<self.frameStackLimit:
+                    if not index-limit<self.frameStackLimit:
                         result_indices=np.arange(limit+1,limit+1+self.frameStackLimit)
                     else:
                         result_indices = np.arange(index - self.frameStackLimit + 1, index + 1)
@@ -207,3 +207,5 @@ class Agent():
         del reward_batch
         del terminal_batch
         del memoryLimit
+    def saveNN(self):
+        t.save(self.Q_eval.state_dict(),"myDQN.pt")

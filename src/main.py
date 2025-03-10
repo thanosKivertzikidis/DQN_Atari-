@@ -5,7 +5,7 @@ import time
 import Agent
 reload(Agent)
 import numpy as np
-import gymnasium as gym
+import gym 
 
 import plotting_fun
 reload(plotting_fun)
@@ -18,14 +18,14 @@ def resize_observation(obs,shape)                                               
 
     obs=obs.numpy()
     return obs[0][0]
-def main(n_games:int=100,
+def main(n_games:int=2,
          attari_title:str="Asterix-v4",
          gamma:float=0.99,
          epsilon:float=1e-5,
          batch_size:int=64,
          eps_end:float=0.1,
          lr:float=1e-5,
-         max_mem_size:int=400000,
+         max_mem_size:int=100,
          ep_dec:float=1e-4,
          steps:int=2000,
          framesStack:int=4,
@@ -51,16 +51,12 @@ def main(n_games:int=100,
          plotname (str): name of the png file that will depict the training size
          propability_scale (float): [0,1]
     """
-
     env=gym.make(attari_title,obs_type="grayscale")
     n_actions = env.action_space.n
     agent=Agent.Agent(gamma=gamma,epsilon=epsilon,batch_size=batch_size,
                 n_actions=n_actions,eps_end=eps_end,height=84,width=84,depth=framesStack,lr=lr,max_mem_size=max_mem_size,
                 ep_dec=ep_dec,steps=steps,propability_scale=propability_scale)
-
-
-
-
+    
     max=0
     frame=0
     trainingTimerStart=time.time()
@@ -103,6 +99,7 @@ def main(n_games:int=100,
             neuralNetTime=time.time()-a
             observationNext, reward, done,_,info =env.step(action)
             observationNext=resize_observation(observationNext,observationNext.shape)
+            
             if reward>maxreward:
                 maxreward=reward
             if maxreward!=0:
@@ -141,6 +138,7 @@ def main(n_games:int=100,
         avgScore.append(anv_score)
         avgTime.append(anv_time)
         print(f"episode {i} score {score}, average score of the last 100 games {anv_score}, epsilon {agent.epsilon}")
+        agent.saveNN()
     env.close()
     plotting_fun.plotTrainingInfo(scores,avgScore,time_history,avgTime,"Training Process Of Agent.",plotname)
     print(f"Training took {(time.time()-trainingTimerStart)/3600.0} hours")
@@ -149,5 +147,5 @@ def main(n_games:int=100,
     print(f"standard deviation of rewards {np.std(scores)}")
     print(f"Average survival time of episodes{sum(time_history)/n_games}")
 
-if __name__=="__name__":
-    main()
+
+main()
